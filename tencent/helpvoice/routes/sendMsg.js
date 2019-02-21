@@ -88,14 +88,14 @@ var postJson = function (req, res, next) {
                 "value": "keyword7",
                 "color": "red"
             }
-        },
-        color: 'red',//颜色
-        emphasis_keyword: 'keyword1.DATA'//需要着重显示的关键词
+        }
+        // color: 'red',//颜色
+        // emphasis_keyword: 'keyword1.DATA'//需要着重显示的关键词
     };
     var options = {
         method: 'POST',
         uri:  'https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=' + access_token,
-        body: JSON.stringify(messageDemo),
+        body: messageDemo,
         headers: {
             'content-type': 'application/json'
         },
