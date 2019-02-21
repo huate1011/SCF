@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Send Message Result</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <form action="/todos" method="POST">
+      <input type="text" name="content" />
+      <input type="submit" value="新增" />
+    </form>
+    <ul>
+      <li>Title: <%= title%></li>
+      <% for(key in result) {%>
+      <% if (result.hasOwnProperty(key)) {%>
+      <li><%= result[key]%></li>
+      <% } %>
+      <% } %>
+    </ul>
+  </body>
+</html>
