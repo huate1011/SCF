@@ -19,7 +19,8 @@
     "leancloud-storage": "^3.11.0",
     "leanengine": "^3.3.2",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "request-promise": "^4.2.4",
+    "tencentcloud-sdk-nodejs": "^3.0.46"
   },
   "devDependencies": {
     "nodemon": "^1.18.6"
