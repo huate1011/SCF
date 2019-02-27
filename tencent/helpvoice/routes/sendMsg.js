@@ -1,6 +1,9 @@
 var router = require('express').Router();
 var rp = require('request-promise');
 const util = require('util');
+var AV = require('leanengine');
+
+var Todo = AV.Object.extend('ClassA');
 
 var access_token = null;
 var expiry = null;
@@ -39,6 +42,13 @@ router.get('/', function(req, res, next){
 
 // 新增 Todo 项目
 router.post('/', function(req, res, next) {
+    if (req.body.openId === undefined || req.body.formIds === undefined) {
+        res.render('Failure', {
+            title: 'Missing open id or form id',
+            result: ""
+        });
+        return;
+    }
     if (expiry === null || expiry < new Date()) {
         getAccessToken(req, res, next);
     }
@@ -52,10 +62,21 @@ router.post('/', function(req, res, next) {
         }
         if (response && response.Result) {
             console.log(response.Result);
-            while(expiry === null || expiry < new Date()) {
-            }
-            req.body.voiceText = response.Result;
-            postJson(req, res, next);
+            let todo = new Todo();
+            todo.set('openId', req.body.openId);
+            todo.set('username', req.body.username);
+            todo.set('address', req.body.address);
+            todo.set('coords', req.body.coords);
+            todo.set('service', req.body.service);
+            todo.set('dtime', new Date());
+            todo.set('accepted', "No");
+            todo.save().then(function(todo) {
+                console.log("Successfully saved todo: " + JSON.stringify(todo));
+                while(expiry === null || expiry < new Date()) {
+                }
+                req.body.voiceText = response.Result;
+                postJson(req, res, next);
+            }).catch(next);
         }
     });
 
@@ -93,9 +114,6 @@ var getAccessToken = (req, res, next) => {
 
 var postJson = function (req, res, next) {
     console.log("received request to send body %s", JSON.stringify(req.body));
-    if (req.body.openId === undefined || req.body.formIds === undefined) {
-        return;
-    }
     let existingFormIds = endPoints[req.body.openId] || [];
     endPoints[req.body.openId] = existingFormIds.concat(typeof req.body.formIds === "string"? JSON.parse(req.body.formIds) : req.body.formIds);
     for (var key in endPoints) {
@@ -108,7 +126,7 @@ var postJson = function (req, res, next) {
         var messageDemo = {
             touser: key || "oWlxK5GzOxVrbtWVQxIX44kqzGAI",//openId
             template_id: 'FesyGJKt_f__TRhBKKPNrHPmLFvy7C6ARN4QPqWKuVk',//模板消息id，
-            page: 'pages/index/index',//点击详情时跳转的主页
+            page: 'pages/requestHelp/requestHelp',//点击详情时跳转的主页
             form_id: formId || "55cd127dcb4ab1c16f648b8994e1eb7",//formID
             data: {//下面的keyword*是设置的模板消息的关键词变量
                 "keyword1": { // name

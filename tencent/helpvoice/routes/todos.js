@@ -10,10 +10,8 @@ router.get('/', function(req, res, next) {
   var query = new AV.Query(Todo);
   query.descending('createdAt');
   query.find().then(function(results) {
-    res.render('todos', {
-      title: 'TODO 列表',
-      todos: results
-    });
+    console.log("Returning todos: " + JSON.stringify(results));
+    res.status(200).json({result: results});
   }, function(err) {
     if (err.code === 101) {
       // 该错误的信息为：{ code: 101, message: 'Class or object doesn\'t exists.' }，说明 Todo 数据表还未创建，所以返回空的 Todo 列表。
@@ -30,12 +28,21 @@ router.get('/', function(req, res, next) {
 
 // 新增 Todo 项目
 router.post('/', function(req, res, next) {
-  var content = req.body.content;
-  var todo = new Todo();
-  todo.set('content', content);
-  todo.save().then(function(todo) {
-    res.redirect('/todos');
-  }).catch(next);
+    var query = new AV.Query(Todo);
+    query.descending('createdAt');
+    query.equalTo("objectId", req.body.objectId);
+    query.equalTo("accepted", "No");
+
+    query.find().then(function (todos) {
+      if (todos.length === 1) {
+        todos[0].set("accepted", "Yes");
+          todos[0].save().then(function (todo) {
+              res.redirect('/todos');
+          }).catch(next);
+
+      }
+
+    });
 });
 
 module.exports = router;
